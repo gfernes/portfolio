@@ -17,6 +17,13 @@ Multiple linear regression analysis on a 10,000-row dataset examining how interv
 
 ---
 
+### 🏠 Housing Data Analysis
+**Tools:** R, RStudio, caret, MASS  
+**File:** [housing_data.html](./housing_data.html)  
+Multiple linear regression model predicting housing outcomes using features including square footage, bedrooms, bathrooms, crime rate, school rating, and distance to city center. Applied forward, backward, and stepwise variable selection with a 70/30 train-test split.
+
+---
+
 ## Skills
 - **Languages:** R, SQL (PostgreSQL)
 - **Tools:** RStudio, pgAdmin, VS Code, Excel, Power BI
