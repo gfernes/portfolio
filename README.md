@@ -4,7 +4,7 @@
 ---
 
 ## About
-Junior Business Analyst and Data Analytics professional with experience in healthcare claims processing, EDI transactions, and Agile workflows. Currently pursuing an M.S. in Data Analytics at WGU.
+Junior Business Analyst and Data Analytics professional with experience in healthcare and Agile workflows. M.S. in Data Analytics and Decision Process Engineering.
 
 ---
 
