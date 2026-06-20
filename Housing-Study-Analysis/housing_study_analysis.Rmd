@@ -1,0 +1,297 @@
+---
+title: "D600: Statistical Data Mining, Linear Regression Analysis"
+author: "Gareth Fernes"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  editor_options:
+  chunk_output_type: console
+---
+
+
+# Load Libraries
+```{r}
+library(tidyverse)
+library(readr)
+library(dplyr)
+library(caret)
+library(MASS)
+library(leaps)
+```
+
+
+# Import the csv file into R
+```{r}
+h_info <- read.csv("C:/Users/gfern/OneDrive/Documents/WGU/D600/TASK1/housing_information.csv")
+```
+
+
+# View the file 'housing_info'
+```{r}
+View(h_info)
+```
+
+
+# Find missing values
+```{r}
+sum(is.na(h_info))
+```
+
+
+# Inspect column Names
+```{r}
+colnames(h_info)
+```
+
+
+# Inspect unique values
+```{r}
+unique(h_info$Windows)
+```
+
+
+# Convert to absolute values
+```{r}
+h_info$Windows <- abs(h_info$Window)
+```
+
+
+# Calculate summary for 'CrimeRate'
+```{r}
+mean_crime <- mean(h_info$CrimeRate, na.rm = TRUE)   # Mean
+print(paste( "Mean:", round(mean_crime, 2)))
+      
+median_crime <- median(h_info$CrimeRate, na.rm = TRUE)  # Median
+print(paste("Median:", round(median_crime, 2)))
+
+mode_crime <- as.numeric(names(sort(table(h_info$CrimeRate), decreasing = TRUE)[1]))  # Mode
+print(paste("Mode:", round(mode_crime, 2)))
+
+range_crime <- range(h_info$CrimeRate, na.rm = TRUE)  # Range
+print(paste("Range:", paste(round(range_crime, 2), collapse = " - ")))
+
+min_crime <- min(h_info$CrimeRate, na.rm = TRUE)  # Minimum
+print(paste("Minimum:", round(min_crime, 2)))
+
+max_crime <- max(h_info$CrimeRate, na.rm = TRUE)  # Maximum
+print(paste("Maximum:", round(max_crime, 2)))
+
+sd_crime <- sd(h_info$CrimeRate, na.rm = TRUE)  # Standard Deviation
+print(paste("Standard Deviation:", round(sd_crime, 2)))
+```
+
+
+# Calculate summary for 'DistanceToCityCenter'
+```{r}
+mean_distance <- mean(h_info$DistanceToCityCenter, na.rm = TRUE)
+print(paste("Mean:", round(mean_distance, 2)))
+
+median_distance <- median(h_info$DistanceToCityCenter, na.rm = TRUE)
+print(paste("Median:", round(median_distance, 2)))
+
+mode_distance <- as.numeric(names(sort(table(h_info$DistanceToCityCenter), decreasing = TRUE)[1]))  # mode calculation
+print(paste("Mode:", round(mode_distance, 2)))
+
+range_distance <- range(h_info$DistanceToCityCenter, na.rm = TRUE)
+print(paste("Range:", paste(round(range_distance, 2), collapse = " - ")))
+
+min_distance <- min(h_info$DistanceToCityCenter, na.rm = TRUE)
+print(paste("Minimum:", round(min_distance, 2)))
+
+max_distance <- max(h_info$DistanceToCityCenter, na.rm = TRUE)
+print(paste("Maximum:", round(max_distance, 2)))
+
+sd_distance <- sd(h_info$DistanceToCityCenter, na.rm = TRUE)
+print(paste("Standard Deviation:", round(sd_distance, 2)))
+```
+
+
+# Calculate summary for 'SchoolRating'
+```{r}
+mean_schoolrating <- mean(h_info$SchoolRating, na.rm = TRUE)
+print(paste("Mean:", round(mean_schoolrating, 2)))
+
+median_schoolrating <- median(h_info$SchoolRating, na.rm = TRUE)
+print(paste("Median:", round(median_schoolrating, 2)))
+
+mode_schoolrating <- as.numeric(names(sort(table(h_info$SchoolRating), decreasing = TRUE)[1]))  # mode calculation
+print(paste("Mode:", round(mode_schoolrating, 2)))
+
+range_schoolrating <- range(h_info$SchoolRating, na.rm = TRUE)
+print(paste("Range:", paste(round(range_schoolrating, 2), collapse = " - ")))
+
+min_schoolrating <- min(h_info$SchoolRating, na.rm = TRUE)
+print(paste("Minimum:", round(min_schoolrating, 2)))
+
+max_schoolrating <- max(h_info$SchoolRating, na.rm = TRUE)
+print(paste("Maximum:", round(max_schoolrating, 2)))
+
+sd_schoolrating <- sd(h_info$SchoolRating, na.rm = TRUE)
+print(paste("Standard Deviation:", round(sd_schoolrating, 2)))
+```
+
+
+# Calculate summary for 'TransportAccess'
+```{r}
+mean_TransportAccess <- mean(h_info$TransportAccess, na.rm = TRUE)
+print(paste("Mean:", round(mean_TransportAccess, 2)))
+
+median_TransportAccess <- median(h_info$TransportAccess, na.rm = TRUE)
+print(paste("Median:", round(median_TransportAccess, 2)))
+
+mode_TransportAccess <- as.numeric(names(sort(table(h_info$TransportAccess), decreasing = TRUE)[1]))  # mode calculation
+print(paste("Mode:", round(mode_TransportAccess, 2)))
+
+range_TransportAccess <- range(h_info$TransportAccess, na.rm = TRUE)
+print(paste("Range:", paste(round(range_TransportAccess, 2), collapse = " - ")))
+
+min_TransportAccess <- min(h_info$TransportAccess, na.rm = TRUE)
+
+print(paste("Minimum:", round(min_TransportAccess, 2)))
+
+max_TransportAccess <- max(h_info$TransportAccess, na.rm = TRUE)
+print(paste("Maximum:", round(max_TransportAccess, 2)))
+
+sd_TransportAccess <- sd(h_info$TransportAccess, na.rm = TRUE)
+print(paste("Standard Deviation:", round(sd_TransportAccess, 2)))
+```
+
+
+# Univariate Visualizations for independent and dependent variables
+```{r}
+ggplot(h_info, aes(x = CrimeRate)) +
+  geom_histogram(binwidth = 1, fill = "lightblue", color = "black") +
+  labs(title = "Distribution of Crime", x = "Crime Rate", y = "Frequency") +
+  theme_minimal()
+
+ggplot(h_info, aes(x = DistanceToCityCenter)) +
+  geom_histogram(binwidth = 1, fill = "lightcoral", color = "black") +
+  labs(title = "Distribution of Distance To City Center", x = "Distance To City Center", y = "Frequency") +
+  theme_minimal()
+
+ggplot(h_info, aes(x = SchoolRating)) +
+  geom_histogram(binwidth = 1, fill = "palegreen", color = "black") +
+  labs(title = "Distribution of School Rating", x = "School Rating", y = "Frequency") +
+  theme_minimal()
+
+ggplot(h_info, aes(x = TransportAccess)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "black") +
+  labs(title = "Distribution of Transport Access", x = "Transport Access", y = "Frequency") +
+  theme_minimal()
+```
+
+
+# Bivariate Visualizations for independent and dependent variables
+# For 'SchoolRating' and 'CrimeRate'
+```{r}
+ggplot(h_info, aes(x = CrimeRate, y = SchoolRating, color = SchoolRating)) +
+  geom_point(alpha = 0.8, size = 2) +  
+  geom_smooth(method = "lm", color = "black", linetype = "dashed") +  # Regression line
+  scale_color_gradient(low = "steelblue2", high = "coral") +  
+  labs(title = "School Rating by Crime Rate", 
+       x = "Crime Rate", 
+       y = "School Rating", 
+       color = "School Rating") + 
+theme_minimal()
+```
+
+
+# For 'SchoolRating' and 'DistanceToCityCenter'  
+```{r}
+ggplot(h_info, aes(x = DistanceToCityCenter, y = SchoolRating)) +
+  geom_point(aes(color = SchoolRating), alpha = 0.8, size = 2) +
+  geom_smooth(method = "lm", color = "black", linetype = "dashed") +  # Add regression line
+  scale_color_gradient(low = "palegreen2", high = "lightslateblue") +  
+  labs(title = "School Rating by Distance to City Center", 
+       x = "Distance to City Center", 
+       y = "School Rating", 
+       color = "School Rating") + 
+  theme_minimal()
+```
+
+
+# For 'SchoolRating' and 'TransportAccess'
+```{r}
+ggplot(h_info, aes(x = TransportAccess, y = SchoolRating)) +
+  geom_point(aes(color = SchoolRating), alpha = 0.8, size = 2) +
+  geom_smooth(method = "lm", color = "black", linetype = "dashed") +  # Add regression line
+  scale_color_gradient(low = "lightpink", high = "steelblue") +  
+  labs(title = "School Rating by Transport Access", 
+       x = "Transport Access", 
+       y = "School Rating", 
+       color = "School Rating") + 
+  theme_minimal()
+```
+
+
+# Next we will select the variables for our analysis
+# Define the dataset split and select the variables
+```{r}
+# Set seed for reproducibility
+set.seed(123) 
+# Define variables to keep in the dataset
+selected_variables <- c("DistanceToCityCenter", "CrimeRate", "SchoolRating", "TransportAccess") 
+# Keep only relevant variables
+h_info_selected_variables <- h_info[selected_variables]  
+```
+
+
+# Create an index for training data
+```{r}
+train_index <- createDataPartition(h_info_selected_variables$DistanceToCityCenter, p = 0.7, list = FALSE)
+```
+
+
+# Subset the data into training set and testing set
+```{r}
+training_data <- h_info_selected_variables[train_index, ]  # 70% Training
+test_data <- h_info_selected_variables[-train_index, ]  # 30% Test
+```
+
+
+# Export the test and training datasets to csv files
+```{r}
+write.csv(training_data, "C:/Users/gfern/OneDrive/Documents/WGU/D600/TASK1/training_data.csv", row.names = FALSE)
+write.csv(test_data, "C:/Users/gfern/OneDrive/Documents/WGU/D600/TASK1/test_data.csv", row.names = FALSE)
+```
+
+
+# Check the dimensions of the new dataset
+```{r}
+dim(training_data)  # Size of training data
+dim(test_data)   # Size of testing data
+```
+
+
+# Create a linear regression model with SchoolRating as dependent variable
+```{r}
+school_rating_model <- lm(SchoolRating ~ DistanceToCityCenter + CrimeRate, data = h_info)
+summary(school_rating_model)
+```
+
+
+# Perform stepwise selection
+```{r}
+stepwise_model <- step(school_rating_model, direction = "both", data = h_info)
+summary(stepwise_model)
+```
+
+
+# Find the MSE and run prediction on 'training_data'
+```{r}
+predictions <- predict(stepwise_model, newdata = training_data)   # Obtain predictions from the optimized model
+residuals <- training_data$SchoolRating - predictions   # Calculate residuals
+mse <- mean(residuals^2)   # Calculate the Mean Squared Error 
+print(paste("Mean Squared Error (MSE):", round(mse, 2)))   # Print the MSE
+```
+
+
+# Run prediction on the 'test_data'
+```{r}
+predictions <- predict(stepwise_model, newdata = test_data)
+actual_values <- test_data$SchoolRating
+mse_test <- mean((predictions - actual_values)^2)
+print(paste("Mean Squared Error (MSE) on the Test Set:", round(mse_test, 2)))
+```
+
+
